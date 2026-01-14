@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  monitoring-bot:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: "monitoring-bot"
+    restart: always
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      MONGO_URI: mongodb://monitoring-db:27017
+    command: python3 test.py
+    depends_on:
+      - mongo
+    networks:
+      - internal-network
+
+  mongo:
+    image: "mongo:6.0"
+    container_name: "monitoring-db"
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - ./data/db:/data/db
+    restart: always
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge
